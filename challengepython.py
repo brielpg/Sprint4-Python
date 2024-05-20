@@ -125,8 +125,8 @@ def menu():
 
 
 TABELA = "T_PS_USUARIO"
-usuarioOracle = 'RM552798'
-senhaOracle = '050803'
+usuarioOracle = 'RM55****'
+senhaOracle = '******'
 
 try:
     dsnStr = oracledb.makedsn("oracle.fiap.com.br", 1521, "ORCL")
