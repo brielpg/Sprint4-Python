@@ -12,9 +12,23 @@ def exportar_json(dados):
     print(f"Dados exportados para {nome_arquivo} com sucesso!")
 
 
+def verificar_login_senha_corretos():
+    try:
+        nome = str(input("Nome: "))
+        email = str(input("Email: "))
+        senha = str(input("Senha: "))
+        cursor.execute(f"SELECT * FROM {TABELA} WHERE nome = '{nome}' AND email_usuario = '{email}' AND senha = '{senha}'")
+        for i in cursor:
+            if i[1] == nome and i[5] == email and i[12] == senha:
+                print("Logado com sucesso!\n")
+                return True, i[1], i[5], i[12]
+        return False
+    except Exception as e:
+        print("Erro: ", e)
+
+
 def create():
     try:
-        id_usuario = int(input("ID Usuario: "))
         nome = str(input("Nome: "))
         sobrenome = str(input("Sobrenome: "))
         cpf_usuario = str(input("CPF: "))
@@ -22,16 +36,16 @@ def create():
         email_usuario = str(input("Email: "))
         telefone = str(input("Telefone: "))
         empresa = str(input("Empresa: "))
-        nr_funcionario = int(input("Nº de Funcionário: "))
+        nr_funcionario = int(input("Nº de Funcionários: "))
         pais = str(input("País: "))
         idioma = str(input("Idioma: "))
-        senha = input("Senha: ")
+        senha_usuario = str(input("Senha: "))
 
         cursor.execute(
             f"INSERT INTO {TABELA} "
-            f"(id_usuario, nome, sobrenome, cpf_usuario, cargo, email_usuario, telefone, empresa, nr_funcionarios, pais, idioma, senha, id_empresa) "
+            f"(nome, sobrenome, cpf_usuario, cargo, email_usuario, telefone, empresa, nr_funcionarios, pais, idioma, senha) "
             f"VALUES "
-            f"({id_usuario}, '{nome}', '{sobrenome}', '{cpf_usuario}', '{cargo}', '{email_usuario}', '{telefone}', '{empresa}', {nr_funcionario}, '{pais}', '{idioma}', '{senha}', 1)")
+            f"('{nome}', '{sobrenome}', '{cpf_usuario}', '{cargo}', '{email_usuario}', '{telefone}', '{empresa}', {nr_funcionario}, '{pais}', '{idioma}', '{senha_usuario}')")
         conn.commit()
 
         print("Dado adicionado ao database com sucesso!")
@@ -73,24 +87,26 @@ def read():
 
 def update():
     try:
-        index = int(input("Digite o index (valor referente a posição do dado) que deseja alterar: "))
-        nome = input("Novo nome: ")
-        sobrenome = input("Novo sobrenome: ")
-        cpf_usuario = input("Novo CPF: ")
-        cargo = input("Novo cargo: ")
-        email_usuario = input("Novo email: ")
-        telefone = input("Novo telefone: ")
-        empresa = input("Nova empresa: ")
-        nr_funcionario = int(input("Novo Nº de Funcionário: "))
-        pais = input("Novo país: ")
-        idioma = input("Novo idioma: ")
-        senha = input("Nova senha: ")
+        print("Antes de realizar a atualização dos dados precisamos verificar se é você mesmo.")
+        login_realizado, nome, email, senha = verificar_login_senha_corretos()
+        if login_realizado:
+            nome_novo = input("Novo nome: ")
+            sobrenome = input("Novo sobrenome: ")
+            cpf_usuario = input("Novo CPF: ")
+            cargo = input("Novo cargo: ")
+            email_usuario = input("Novo email: ")
+            telefone = input("Novo telefone: ")
+            empresa = input("Nova empresa: ")
+            nr_funcionario = int(input("Novo Nº de Funcionário: "))
+            pais = input("Novo país: ")
+            idioma = input("Novo idioma: ")
+            senha_nova = input("Nova senha: ")
 
-        cursor.execute(f"UPDATE {TABELA} SET nome='{nome}', sobrenome='{sobrenome}', cpf_usuario='{cpf_usuario}', "
-                       f"cargo='{cargo}', email_usuario='{email_usuario}', telefone='{telefone}', empresa='{empresa}', "
-                       f"nr_funcionarios={nr_funcionario}, pais='{pais}', idioma='{idioma}', senha='{senha}' WHERE id_usuario = {index}")
-        conn.commit()
-        print("Dados atualizados com sucesso!")
+            cursor.execute(f"UPDATE {TABELA} SET nome='{nome_novo}', sobrenome='{sobrenome}', cpf_usuario='{cpf_usuario}', "
+                           f"cargo='{cargo}', email_usuario='{email_usuario}', telefone='{telefone}', empresa='{empresa}', "
+                           f"nr_funcionarios={nr_funcionario}, pais='{pais}', idioma='{idioma}', senha='{senha_nova}' WHERE nome = '{nome}' AND email_usuario = '{email}' AND senha = '{senha}'")
+            conn.commit()
+            print("Dados atualizados com sucesso!")
     except ValueError:
         print("Número de funcionários inválido!")
     except Exception as e:
@@ -101,12 +117,15 @@ def update():
 
 def delete():
     try:
-        index = int(input("Digite o index (valor referente a posição do dado) que deseja deletar: "))
-        certeza = str(input(f"Tem certeza que deseja deletar o usuário {index} da tabela? (Sim/Nao) ")).lower()
-        if certeza == "sim" or certeza == "s":
-            cursor.execute(f"DELETE FROM {TABELA} WHERE id_usuario = {index}")
-            print("Dado deletado com sucesso!")
-            conn.commit()
+        print("Obs: você só pode deletar os usuários que tem acesso, ou seja, somente os usuários que você tem login e senha.")
+        print("Antes de realizar o delete dos dados precisamos verificar se é você mesmo.")
+        login_realizado, nome, email, senha = verificar_login_senha_corretos()
+        if login_realizado:
+            certeza = str(input(f"Tem certeza que deseja deletar o usuário \"{nome}\" da tabela? (Sim/Nao) ")).lower()
+            if certeza == "sim" or certeza == "s":
+                cursor.execute(f"DELETE FROM {TABELA} WHERE nome = '{nome}' AND email_usuario = '{email}' AND senha = '{senha}'")
+                print("Dado deletado com sucesso!")
+                conn.commit()
     except ValueError:
         print("Número de funcionários inválido!")
     except Exception as e:
@@ -125,8 +144,8 @@ def menu():
 
 
 TABELA = "T_PS_USUARIO"
-usuarioOracle = 'RM55****'
-senhaOracle = '******'
+usuarioOracle = 'RM552798'
+senhaOracle = '050803'
 
 try:
     dsnStr = oracledb.makedsn("oracle.fiap.com.br", 1521, "ORCL")
