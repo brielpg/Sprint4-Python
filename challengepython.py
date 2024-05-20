@@ -1,5 +1,6 @@
 import oracledb
 import json
+from verificacoes import *
 
 
 def exportar_json(dados):
@@ -29,14 +30,17 @@ def verificar_login_senha_corretos():
 
 def create():
     try:
-        nome = str(input("Nome: "))
-        sobrenome = str(input("Sobrenome: "))
-        cpf_usuario = str(input("CPF: "))
-        cargo = str(input("Cargo: "))
+        nome = verificar_nome()
+        sobrenome = verificar_sobrenome()
+        cpf_usuario = verificar_cpf()
+        cargo = verificar_cargo()
         email_usuario = str(input("Email: "))
         telefone = str(input("Telefone: "))
         empresa = str(input("Empresa: "))
         nr_funcionario = int(input("Nº de Funcionários: "))
+        if nr_funcionario < 1:
+            print("Nº de Funcionários inválido")
+            menu()
         pais = str(input("País: "))
         idioma = str(input("Idioma: "))
         senha_usuario = str(input("Senha: "))
@@ -144,8 +148,8 @@ def menu():
 
 
 TABELA = "T_PS_USUARIO"
-usuarioOracle = 'RM55****'
-senhaOracle = '******'
+usuarioOracle = 'RM552798'
+senhaOracle = '050803'
 
 try:
     dsnStr = oracledb.makedsn("oracle.fiap.com.br", 1521, "ORCL")
