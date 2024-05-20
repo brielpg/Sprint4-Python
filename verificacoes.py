@@ -1,22 +1,33 @@
-def verificar_nome():
-    nome = input("Nome: ")
-    if len(nome) > 1:
-        return nome
+import re
 
 
-def verificar_sobrenome():
-    sobrenome = input("Sobrenome: ")
-    if len(sobrenome) > 1:
-        return sobrenome
+def verify_data(valor: str):
+    while True:
+        dado = input(f"{valor}: ")
+        if len(dado) > 0:
+            return dado
+        print(f"{valor} inválido, tente novamente!")
 
 
 def verificar_cpf():
-    cpf = input("CPF: ")
-    if len(cpf) == 11:
-        return cpf
+    while True:
+        cpf = input("CPF: ")
+        if re.match(r'^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$', cpf):
+            return cpf
+        print("CPF inválido, tente novamente!")
 
 
-def verificar_cargo():
-    cargo = input("Cargo: ")
-    if len(cargo) > 1:
-        return cargo
+def verificar_email():
+    while True:
+        email = input("Email: ")
+        if re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            return email
+        print("Email inválido, tente neste formato xxx@yyy.zzz")
+
+
+def verificar_nfuncionarios():
+    while True:
+        nr_funcionarios = int(input("Nº de Funcionários: "))
+        if nr_funcionarios > 0:
+            return nr_funcionarios
+        print("Valor inválido")

@@ -15,9 +15,10 @@ def exportar_json(dados):
 
 def verificar_login_senha_corretos():
     try:
-        nome = str(input("Nome: "))
-        email = str(input("Email: "))
-        senha = str(input("Senha: "))
+        print("Preencha seus dados corretamente")
+        nome = str(input("<Login> Nome: "))
+        email = str(input("<Login> Email: "))
+        senha = str(input("<Login> Senha: "))
         cursor.execute(f"SELECT * FROM {TABELA} WHERE nome = '{nome}' AND email_usuario = '{email}' AND senha = '{senha}'")
         for i in cursor:
             if i[1] == nome and i[5] == email and i[12] == senha:
@@ -30,20 +31,17 @@ def verificar_login_senha_corretos():
 
 def create():
     try:
-        nome = verificar_nome()
-        sobrenome = verificar_sobrenome()
+        nome = verify_data("Nome")
+        sobrenome = verify_data("Sobrenome")
         cpf_usuario = verificar_cpf()
-        cargo = verificar_cargo()
-        email_usuario = str(input("Email: "))
-        telefone = str(input("Telefone: "))
-        empresa = str(input("Empresa: "))
-        nr_funcionario = int(input("Nº de Funcionários: "))
-        if nr_funcionario < 1:
-            print("Nº de Funcionários inválido")
-            menu()
-        pais = str(input("País: "))
-        idioma = str(input("Idioma: "))
-        senha_usuario = str(input("Senha: "))
+        cargo = verify_data("Cargo")
+        email_usuario = verificar_email()
+        telefone = verify_data("Telefone")
+        empresa = verify_data("Empresa")
+        nr_funcionario = verificar_nfuncionarios()
+        pais = verify_data("País")
+        idioma = verify_data("Idioma")
+        senha_usuario = verify_data("Senha")
 
         cursor.execute(
             f"INSERT INTO {TABELA} "
@@ -63,26 +61,30 @@ def create():
 
 def read():
     try:
-        informacao = int(input("O que deseja verificar?\n1. Todos os cadastros\n2. Um cadastro específico\nOpcao: "))
-        if informacao == 1:
-            cursor.execute(f"SELECT * FROM {TABELA}")
-            for i in cursor:
-                print(i)
-            dados = cursor.fetchall()
+        print("Antes de realizar uma consulta dos dados precisamos verificar seu login.")
+        login_realizado, nome, email, senha = verificar_login_senha_corretos()
 
-            deseja_exportar = str(input("Deseja exportar os dados para um arquivo Json? S/N ")).lower()
-            if deseja_exportar == "s" or deseja_exportar == "sim":
-                exportar_json(dados)
-        elif informacao == 2:
-            index = int(input("Digite o index (valor referente a posição do dado) que deseja verificar: "))
-            cursor.execute(f"SELECT * FROM {TABELA} WHERE id_usuario = {index}")
-            for i in cursor:
-                print(i)
-            dados = cursor.fetchall()
+        if login_realizado:
+            informacao = int(input("O que deseja verificar?\n1. Todos os cadastros\n2. Um cadastro específico\nOpcao: "))
+            if informacao == 1:
+                cursor.execute(f"SELECT * FROM {TABELA}")
+                for i in cursor:
+                    print(i)
+                dados = cursor.fetchall()
 
-            deseja_exportar = str(input("Deseja exportar os dados para um arquivo Json? S/N ")).lower()
-            if deseja_exportar == "s" or deseja_exportar == "sim":
-                exportar_json(dados)
+                deseja_exportar = str(input("Deseja exportar os dados para um arquivo Json? S/N ")).lower()
+                if deseja_exportar == "s" or deseja_exportar == "sim":
+                    exportar_json(dados)
+            elif informacao == 2:
+                index = int(input("Digite o index (valor referente a posição do dado) que deseja verificar: "))
+                cursor.execute(f"SELECT * FROM {TABELA} WHERE id_usuario = {index}")
+                for i in cursor:
+                    print(i)
+                dados = cursor.fetchall()
+
+                deseja_exportar = str(input("Deseja exportar os dados para um arquivo Json? S/N ")).lower()
+                if deseja_exportar == "s" or deseja_exportar == "sim":
+                    exportar_json(dados)
     except Exception as e:
         print(f"Erro: {e}")
     finally:
@@ -93,18 +95,19 @@ def update():
     try:
         print("Antes de realizar a atualização dos dados precisamos verificar se é você mesmo.")
         login_realizado, nome, email, senha = verificar_login_senha_corretos()
+
         if login_realizado:
-            nome_novo = input("Novo nome: ")
-            sobrenome = input("Novo sobrenome: ")
-            cpf_usuario = input("Novo CPF: ")
-            cargo = input("Novo cargo: ")
-            email_usuario = input("Novo email: ")
-            telefone = input("Novo telefone: ")
-            empresa = input("Nova empresa: ")
-            nr_funcionario = int(input("Novo Nº de Funcionário: "))
-            pais = input("Novo país: ")
-            idioma = input("Novo idioma: ")
-            senha_nova = input("Nova senha: ")
+            nome_novo = verify_data("Nome")
+            sobrenome = verify_data("Sobrenome")
+            cpf_usuario = verificar_cpf()
+            cargo = verify_data("Cargo")
+            email_usuario = verificar_email()
+            telefone = verify_data("Telefone")
+            empresa = verify_data("Empresa")
+            nr_funcionario = verificar_nfuncionarios()
+            pais = verify_data("País")
+            idioma = verify_data("Idioma")
+            senha_nova = verify_data("Senha")
 
             cursor.execute(f"UPDATE {TABELA} SET nome='{nome_novo}', sobrenome='{sobrenome}', cpf_usuario='{cpf_usuario}', "
                            f"cargo='{cargo}', email_usuario='{email_usuario}', telefone='{telefone}', empresa='{empresa}', "
@@ -124,6 +127,7 @@ def delete():
         print("Obs: você só pode deletar os usuários que tem acesso, ou seja, somente os usuários que você tem login e senha.")
         print("Antes de realizar o delete dos dados precisamos verificar se é você mesmo.")
         login_realizado, nome, email, senha = verificar_login_senha_corretos()
+        
         if login_realizado:
             certeza = str(input(f"Tem certeza que deseja deletar o usuário \"{nome}\" da tabela? (Sim/Nao) ")).lower()
             if certeza == "sim" or certeza == "s":
